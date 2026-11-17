@@ -33,6 +33,7 @@ public final class VoluntarySeedDropChance implements LootItemCondition {
 
     @Override
     public boolean test(LootContext context) {
+        if (DTConfigs.SERVER.staticTrees.get()) return false;
         final Float seasonalSeedDropFactor = context.getParamOrNull(DTLootContextParams.SEASONAL_SEED_DROP_FACTOR);
         assert seasonalSeedDropFactor != null;
         double minimumDropRate = DTConfigs.SERVER.minSeasonalVoluntarySeedDropRate.get();

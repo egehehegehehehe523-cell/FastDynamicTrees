@@ -72,7 +72,9 @@ public class DynamicLeavesBlock extends LeavesBlock implements TreePart, Ageable
 
     @Override
     public boolean isRandomlyTicking(BlockState state) {
-        return !state.getValue(PERSISTENT);
+        // No passive canopy simulation in FastDynamicTrees. Neighbor-triggered
+        // scheduled ticks still keep hydro/structural decay functional.
+        return !DTConfigs.SERVER.staticTrees.get() && !state.getValue(PERSISTENT);
     }
 
     public LeavesProperties getLeavesProperties() {
@@ -125,6 +127,7 @@ public class DynamicLeavesBlock extends LeavesBlock implements TreePart, Ageable
      */
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand) {
+        if (DTConfigs.SERVER.staticTrees.get()) return;
         double growthMultiplier = DTConfigs.SERVER.treeGrowthMultiplier.get();
         if (rand.nextFloat() > growthMultiplier) {
             return;
@@ -155,6 +158,9 @@ public class DynamicLeavesBlock extends LeavesBlock implements TreePart, Ageable
      */
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource rand) {
+        // Preserve invalid-leaf cleanup when the block changes without paying
+        // for a continuous random-tick scan of every canopy block.
+        if (removeIfInvalid(state, level, pos, rand)) return;
         updateHydro(level, pos, state, false);
     }
 
@@ -184,6 +190,9 @@ public class DynamicLeavesBlock extends LeavesBlock implements TreePart, Ageable
                     int sideHydro;
                     if (hasLeaves) {
                         sideHydro = updateHydro(level, sidePos, sideState, worldGen);
+                    } else if (!worldGen && DTConfigs.SERVER.staticTrees.get()) {
+                        // Follow only existing leaves; never regrow a destroyed canopy.
+                        continue;
                     } else { //There were no leaves, attempt to grow some
                         sideHydro = growLeavesIfLocationIsSuitable(level, getLeavesProperties(), sidePos, null);
                     }
@@ -205,6 +214,8 @@ public class DynamicLeavesBlock extends LeavesBlock implements TreePart, Ageable
         if (!worldGen && removeIfInvalid(state, level, pos, rand)) {
             return 0;
         }
+
+        if (!worldGen && DTConfigs.SERVER.staticTrees.get()) return newHydro;
 
         for (Direction dir : Direction.values()) {
             if (newHydro > 1 || rand.nextInt(4) == 0) {

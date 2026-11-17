@@ -118,6 +118,8 @@ public class Seed extends Item {//implements IPlantable {
             return true;
         }
 
+        if (DTConfigs.SERVER.staticTrees.get()) return false;
+
         if (!level.canSeeSkyFromBelowWater(pos)) {
             return false;
         }

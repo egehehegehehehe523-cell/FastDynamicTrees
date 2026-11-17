@@ -42,6 +42,11 @@ public class DynamicSaplingBlock extends Block implements BonemealableBlock {
         this.species = species;
     }
 
+    @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        return !DTConfigs.SERVER.staticTrees.get();
+    }
+
     ///////////////////////////////////////////
     // TREE INFORMATION
     ///////////////////////////////////////////
@@ -68,6 +73,7 @@ public class DynamicSaplingBlock extends Block implements BonemealableBlock {
 
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (DTConfigs.SERVER.staticTrees.get()) return;
         if (this.getSpecies().canSaplingGrowNaturally(level, pos)) {
             this.performBonemeal(level, random, pos, state);
         }

@@ -1,0 +1,27 @@
+name: FastDynamicTrees NeoForge 1.21.1
+
+on:
+  push:
+    branches:
+      - fast-static-trees-1.21.1
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compile NeoForge
+        run: ./gradlew :neoforge:build --no-daemon
+      - name: Attach NeoForge JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: FastDynamicTrees-NeoForge-1.21.1
+          path: neoforge/build/libs/*.jar
+          if-no-files-found: error
+          retention-days: 30

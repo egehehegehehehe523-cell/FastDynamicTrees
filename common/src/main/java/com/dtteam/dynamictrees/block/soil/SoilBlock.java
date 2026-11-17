@@ -74,6 +74,13 @@ public class SoilBlock extends BlockWithDynamicHardness implements TreePart, Ent
         registerDefaultState(defaultBlockState().setValue(FERTILITY, 0).setValue(IS_VARIANT, false));
     }
 
+    @Override
+    public boolean isRandomlyTicking(BlockState state) {
+        // Full-grown trees do not need to run their expensive recursive
+        // growth/soil update on random block ticks in static-forest mode.
+        return !DTConfigs.SERVER.staticTrees.get();
+    }
+
     ///////////////////////////////////////////
     // SOIL PROPERTIES
     ///////////////////////////////////////////
@@ -206,6 +213,7 @@ public class SoilBlock extends BlockWithDynamicHardness implements TreePart, Ent
 
     @Override
     public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (DTConfigs.SERVER.staticTrees.get()) return;
         double growthMultiplier = DTConfigs.SERVER.treeGrowthMultiplier.get();
         //Growth multiplier lower than 1 causes only some ticks to grow
         if (random.nextFloat() > growthMultiplier) return;

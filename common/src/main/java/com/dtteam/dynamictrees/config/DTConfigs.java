@@ -43,6 +43,8 @@ public class DTConfigs {
     public ModConfigSpec.BooleanValue climateAffectsFruitsAndPods;
 
     public ModConfigSpec.DoubleValue treeGrowthMultiplier;
+    /** Avoids passive simulation once trees have been generated. Manual bonemeal remains available. */
+    public ModConfigSpec.BooleanValue staticTrees;
     public ModConfigSpec.DoubleValue treeHarvestMultiplier;
     public ModConfigSpec.DoubleValue maxTreeHardness;
     public ModConfigSpec.DoubleValue treeHardnessMultiplier;
@@ -119,6 +121,8 @@ public class DTConfigs {
         builder.pop();
 
         builder.comment("Tree Settings").push("trees");
+        config.staticTrees = builder.comment("FastDynamicTrees: stop natural tree and sapling growth, seed spreading and leaf regrowth. World generation, bonemeal, branch destruction and leaf decay still work.")
+                .define("staticTrees", true);
         config.treeGrowthMultiplier = builder.comment("Factor that multiplies the rate at which trees grow. Use at own risk")
                 .defineInRange("treeGrowthMultiplier", 0.5, 0, 16.0);
         config.treeHarvestMultiplier = builder.comment("Factor that multiplies the wood returned from harvesting a tree.  You cheat.")
